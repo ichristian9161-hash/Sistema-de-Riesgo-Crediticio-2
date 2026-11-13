@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Análisis de riesgo crediticio · Grupo N°2</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#eef2f9;--card:#fff;--ink:#0b2545;--muted:#5b6b82;--line:#dfe6f1;--acc:#2f6fdd;--onacc:#fff;--soft:#e8effc;--h1:#0b2545;--h2:#1d4a8f;--bad:#c62828;--bad-bg:#fde7e7;--ok:#1b7a3d;--ok-bg:#e2f5e8}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0a1220;--card:#111c30;--ink:#e8eefb;--muted:#93a3bf;--line:#223250;--acc:#6ea2ff;--onacc:#08142a;--soft:#192a47;--h1:#0a1a33;--h2:#16397a;--bad:#ff8d8d;--bad-bg:#3a1a1f;--ok:#6fdc97;--ok-bg:#12301f}}
+:root[data-theme="dark"]{--bg:#0a1220;--card:#111c30;--ink:#e8eefb;--muted:#93a3bf;--line:#223250;--acc:#6ea2ff;--onacc:#08142a;--soft:#192a47;--h1:#0a1a33;--h2:#16397a;--bad:#ff8d8d;--bad-bg:#3a1a1f;--ok:#6fdc97;--ok-bg:#12301f}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:14px/1.5 Inter,system-ui,sans-serif}
+.app{display:grid;grid-template-columns:230px minmax(0,1fr);min-height:100vh}
+aside{position:sticky;top:0;height:100vh;background:var(--card);border-right:1px solid var(--line);padding:1.2rem .8rem;display:flex;flex-direction:column;gap:.2rem}
+.brand{display:flex;align-items:center;gap:.6rem;padding:0 .4rem 1rem}
+.logo{width:38px;height:38px;border-radius:10px;background:var(--h1);color:#fff;display:grid;place-items:center;font-weight:800}
+.brand b{flex:1;font-size:.95rem;line-height:1.2}
+.th{border:1px solid var(--line);background:var(--soft);color:var(--ink);border-radius:10px;width:34px;height:34px;cursor:pointer;font-size:1rem}
+aside h4{margin:1rem .6rem .3rem;font-size:.68rem;letter-spacing:.1em;color:var(--muted)}
+.nv{border:0;background:none;color:var(--ink);text-align:left;padding:.65rem .8rem;border-radius:10px;font:inherit;font-weight:600;cursor:pointer;width:100%}
+.nv:hover{background:var(--soft)}.nv.on{background:var(--soft);color:var(--acc);box-shadow:inset 0 0 0 1px var(--line)}
+:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
+main{padding:1.5rem 2rem 3rem;min-width:0;max-width:1180px;width:100%;margin:0 auto}
+.mod{display:none}.mod.on{display:block}
+.hero{background:linear-gradient(120deg,var(--h1),var(--h2));color:#fff;border-radius:22px;padding:1.8rem 2rem;margin-bottom:1.2rem;box-shadow:0 14px 40px rgba(11,37,69,.2)}
+.hero small{letter-spacing:.14em;font-weight:800;font-size:.7rem;color:#9ec3ff}
+.hero h1{margin:.3rem 0;font-size:clamp(1.6rem,4vw,2.5rem);line-height:1.12;letter-spacing:-.02em}
+.hero p{margin:0;color:#c9d8f0;max-width:62ch}
+.card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:1.2rem 1.3rem;margin-bottom:1rem;box-shadow:0 6px 24px rgba(11,37,69,.06)}
+h2{margin:0;font-size:1.05rem}.hint{color:var(--muted);margin:.2rem 0 1rem;font-size:.85rem}
+.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;margin-bottom:1rem}
+.kpi{background:var(--card);border:1px solid var(--line);border-left:4px solid var(--acc);border-radius:14px;padding:.9rem 1.1rem}
+.kpi.r{border-left-color:var(--bad)}.kpi.r b{color:var(--bad)}
+.kpi small{font-size:.68rem;letter-spacing:.1em;color:var(--muted);font-weight:600}.kpi b{display:block;font-size:1.7rem;letter-spacing:-.02em}.kpi span{font-size:.72rem;color:var(--muted)}
+.tw{overflow:auto;max-height:520px;border-radius:12px;border:1px solid var(--line)}
+table{width:100%;border-collapse:collapse;min-width:900px}
+th{position:sticky;top:0;background:var(--h1);color:#fff;font-size:.68rem;letter-spacing:.06em;text-align:left;padding:.75rem .6rem;white-space:nowrap}
+td{padding:.65rem .6rem;border-bottom:1px solid var(--line);white-space:nowrap}
+.chip{background:var(--soft);border:1px solid var(--line);border-radius:6px;padding:.1rem .45rem;font-size:.7rem;font-weight:600}
+.b{border-radius:99px;padding:.15rem .6rem;font-size:.72rem;font-weight:800}.b.bad{background:var(--bad-bg);color:var(--bad)}.b.ok{background:var(--ok-bg);color:var(--ok)}
+.pg{display:flex;justify-content:space-between;align-items:center;gap:.5rem;margin-top:.9rem;color:var(--muted);font-weight:600}
+.btn{border:1px solid var(--line);background:var(--card);color:var(--ink);padding:.65rem 1.1rem;border-radius:10px;font:inherit;font-weight:700;cursor:pointer}
+.btn.p{background:var(--h1);border-color:var(--h1);color:#fff}.btn:disabled{opacity:.45;cursor:default}
+label{display:block;font-size:.72rem;font-weight:600;color:var(--muted);margin-bottom:.3rem}
+select,input[type=number],textarea{width:100%;max-width:420px;padding:.65rem .8rem;border:1px solid var(--line);border-radius:10px;background:var(--card);color:var(--ink);font:inherit;margin-bottom:.9rem}
+textarea{max-width:none;font:13px/1.5 ui-monospace,Consolas,monospace;min-height:280px;resize:vertical;background:var(--bg)}
+.g2{display:grid;grid-template-columns:minmax(0,1.9fr) minmax(0,1fr);gap:1rem;align-items:start}
+.row{display:flex;flex-wrap:wrap;gap:.6rem;align-items:center}
+.tabs{display:inline-grid;grid-auto-flow:column;gap:.3rem;background:var(--bg);padding:.3rem;border-radius:12px;margin-bottom:.9rem}
+.tabs button{border:0;background:none;color:var(--muted);padding:.5rem 1rem;border-radius:9px;font:inherit;font-weight:700;cursor:pointer}
+.tabs button.on{background:var(--card);color:var(--acc);box-shadow:0 2px 8px rgba(0,0,0,.1)}
+.note{background:var(--soft);border-left:3px solid var(--acc);border-radius:8px;padding:.7rem .9rem;font-size:.82rem;margin:.6rem 0}
+.big{display:grid;grid-template-columns:repeat(2,1fr);gap:1rem;margin-bottom:1rem}
+.big div{background:var(--bg);border-radius:12px;padding:.9rem 1.1rem}.big small{color:var(--muted);font-weight:600}.big b{display:block;font-size:1.9rem;color:var(--acc)}
+ul{padding-left:1.1rem;margin:.4rem 0;color:var(--muted)}li{margin:.25rem 0}
+code{background:var(--soft);padding:.05rem .35rem;border-radius:5px;font-size:.85em}
+.ge{stroke:var(--line);fill:none;stroke-width:2}.ge.on{stroke:var(--acc);stroke-width:4}
+.gn{fill:var(--card);stroke:var(--line);stroke-width:3}.gn.on{stroke:var(--acc)}
+svg text{fill:var(--ink);font:600 13px Inter,system-ui,sans-serif;text-anchor:middle}svg .m{fill:var(--muted);font-weight:400;font-size:11px}
+.sm td,.sm th{position:static;background:none;color:var(--ink);border-bottom:1px solid var(--line);padding:.5rem}
+.sm th{color:var(--muted)}.sm{min-width:0}
+@media (max-width:1000px){.kpis{grid-template-columns:repeat(2,1fr)}.g2{grid-template-columns:1fr}}
+@media (max-width:820px){.app{grid-template-columns:1fr}aside{position:static;height:auto;flex-direction:row;flex-wrap:wrap}aside h4{display:none}.nv{width:auto}main{padding:1rem}}
+</style>
+</head>
+<body>
+<div class="app">
+<aside>
+<div class="brand"><div class="logo">G2</div><b>¿Qué desea realizar?</b><button class="th" id="theme" aria-label="Cambiar tema">☾</button></div>
+<button class="nv" data-go="analizador">‹› Analizar algoritmos</button>
+<h4>MÓDULOS</h4>
+<button class="nv on" data-go="inicio">Inicio</button>
+<button class="nv" data-go="orden">Ordenamiento</button>
+<button class="nv" data-go="busqueda">Búsqueda</button>
+<button class="nv" data-go="grafo">Análisis de grafo</button>
+</aside>
+<main>
+<div class="note" id="banner"><span id="bannerTxt"></span> <input type="file" id="csvIn" accept=".csv" aria-label="Cargar CSV"></div>
+
+<section class="mod on" id="m-inicio">
+<div class="hero"><small>PROYECTO INTEGRADOR · GRUPO N°2</small><h1>Análisis de riesgo crediticio</h1><p>Explora el dataset completo, ordénalo y búscalo con los algoritmos vistos en el curso.</p></div>
+<div class="kpis" id="kpis"></div>
+<div class="card"><h2>Préstamos</h2><p class="hint" id="tinfo"></p>
+<div class="tw"><table><thead><tr id="thr"></tr></thead><tbody id="tb"></tbody></table></div>
+<div class="pg"><button class="btn" id="prev">Anterior</button><span id="pinfo"></span><button class="btn" id="next">Siguiente</button></div></div>
+</section>
+
+<section class="mod" id="m-analizador">
+<div class="hero"><small>HERRAMIENTAS</small><h1>Analizador de algoritmos</h1><p>Calcula la complejidad temporal y espacial de tus algoritmos en Python.</p></div>
+<div class="g2"><div class="card"><h2>Código Python</h2><p class="hint">Pega una función. El análisis es heurístico: lee la indentación, los bucles y las llamadas recursivas, y asume el peor caso.</p>
+<label for="ex">Ejemplo</label><select id="ex"></select>
+<textarea id="code" spellcheck="false"></textarea>
+<div class="row"><button class="btn p" id="an">Analizar</button><button class="btn" id="clr">Limpiar resultado</button><button class="btn" id="add" disabled>Añadir a comparación</button></div></div>
+<div><div class="card"><h2>Qué detecta</h2><ul><li>Bucles anidados y logarítmicos</li><li>Recursión lineal, binaria y exponencial</li><li>Divide y vencerás</li><li>Uso de <code>sorted</code> y <code>.sort</code></li><li>Memoria auxiliar y pila de recursión</li></ul></div>
+<div class="card"><h2>Reglas clave</h2><ul><li><code>for</code> anidados → producto de iteraciones.</li><li><code>while n &gt; 0: n //= 2</code> → O(log n).</li><li>Dos llamadas con n−1 → O(2ⁿ).</li><li>Dos mitades + recorrido lineal → O(n log n).</li></ul></div></div></div>
+<div class="card" id="ares" hidden></div>
+<div class="card" id="cmpC" hidden><h2>Comparación</h2><table class="sm"><thead><tr><th>Algoritmo</th><th>Tiempo</th><th>Espacio</th></tr></thead><tbody id="cmpT"></tbody></table></div>
+</section>
+
+<section class="mod" id="m-orden">
+<div class="hero"><small>MÓDULO</small><h1>Ordenamiento</h1><p>Ordena toda la tabla con Merge Sort, Quick Sort o el ordenamiento nativo y compara comparaciones y tiempo.</p></div>
+<div class="card"><label for="ocol">Ordenar por</label><select id="ocol"></select>
+<label for="oalg">Algoritmo</label><select id="oalg"><option value="merge">Merge Sort · O(n log n)</option><option value="quick">Quick Sort · O(n log n) promedio</option><option value="nat">Nativo del navegador (TimSort)</option></select>
+<label for="odir">Dirección</label><select id="odir"><option value="1">Ascendente</option><option value="-1">Descendente</option></select>
+<div class="row"><button class="btn p" id="oapply">Ordenar tabla</button><button class="btn" id="oreset">Restaurar orden original</button></div>
+<div class="note" id="ores">Elige un criterio y aplica un algoritmo. El resultado se ve en la tabla de Inicio.</div></div>
+</section>
+
+<section class="mod" id="m-busqueda">
+<div class="hero"><small>MÓDULO</small><h1>Búsqueda</h1><p>Compara cuántas comparaciones necesita cada método para encontrar un valor exacto.</p></div>
+<div class="card"><div class="tabs" id="stabs"><button class="on" data-b="sec">Secuencial</button><button data-b="bin">Binaria</button><button data-b="int">Interpolación</button></div><br>
+<label for="sf">Campo</label><select id="sf"><option value="amt">Monto del préstamo</option><option value="inc">Ingreso anual</option><option value="age">Edad</option></select>
+<label for="sq">Valor exacto</label><input type="number" id="sq" placeholder="Ej.: 35000">
+<button class="btn p" id="sgo">Buscar</button>
+<div class="note" id="sres">La búsqueda binaria y la de interpolación trabajan sobre una copia ordenada del campo.</div></div>
+</section>
+
+<section class="mod" id="m-grafo">
+<div class="hero"><small>MÓDULO</small><h1>Análisis de grafo</h1><p>Modela los grados crediticios como un grafo ponderado y encuentra con Dijkstra el camino de menor tasa acumulada desde el grado A.</p></div>
+<div class="card"><h2>Análisis de grafo con Dijkstra</h2><p class="hint">Cada grado se conecta con los dos siguientes. El peso de una arista es el promedio de la tasa media de ambos grados.</p>
+<label for="gd">Grado de destino</label><select id="gd"></select><button class="btn p" id="gg">Calcular ruta de menor riesgo</button>
+<div class="note" id="gres"></div><svg id="gsvg" viewBox="0 0 690 210" width="100%" role="img" aria-label="Grafo de grados crediticios"></svg></div>
+</section>
+</main>
+</div>
+
+<script>
+var SAMPLE="person_age,person_income,person_home_ownership,person_emp_length,loan_intent,loan_grade,loan_amnt,loan_int_rate,loan_status,loan_percent_income\n22,59000,RENT,12,PERSONAL,D,35000,16.02,1,0.59\n21,9600,OWN,5,EDUCATION,B,1000,11.14,0,0.10\n25,9600,MORTGAGE,1,MEDICAL,C,5500,12.87,1,0.57\n23,65500,RENT,4,MEDICAL,C,35000,15.23,1,0.53\n24,54400,RENT,8,MEDICAL,C,35000,14.27,1,0.55\n21,9900,OWN,2,VENTURE,A,2500,7.14,1,0.25\n26,77100,RENT,8,EDUCATION,B,35000,12.42,1,0.45\n24,78956,RENT,5,MEDICAL,B,35000,11.11,1,0.44\n24,83000,RENT,8,PERSONAL,A,35000,8.90,1,0.42\n21,10000,OWN,6,VENTURE,D,1600,14.74,1,0.16\n22,85000,RENT,6,VENTURE,B,35000,10.37,1,0.41";
+var COLS=[['i','#'],['age','EDAD'],['inc','INGRESO'],['home','VIVIENDA'],['emp','ANTIGÜEDAD LABORAL'],['intent','INTENCIÓN'],['grade','GRADO'],['amt','MONTO'],['rate','TASA'],['st','ESTADO'],['pct','PRÉSTAMO / INGRESO']];
+var G=['A','B','C','D','E','F','G'],PS=50;
+var rows=[],view=[],page=1,sKey='i',sDir=1,cache={},bus='sec',gstat=[];
+var $=function(i){return document.getElementById(i)};
+var esc=function(s){return String(s).replace(/[&<>]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;'}[c]})};
+var money=function(n){return '$'+n.toLocaleString('en-US')};
+
+function parse(t){
+  var L=t.trim().split(/\r?\n/),H=L[0].split(','),ix={};H.forEach(function(h,i){ix[h.trim()]=i});
+  return L.slice(1).map(function(l,k){var c=l.split(',');
+    var n=function(x){var v=c[ix[x]];return v===undefined||v===''?null:+v};
+    return {i:k+1,age:n('person_age'),inc:n('person_income'),home:c[ix.person_home_ownership],emp:n('person_emp_length'),intent:c[ix.loan_intent],grade:c[ix.loan_grade],amt:n('loan_amnt'),rate:n('loan_int_rate'),st:n('loan_status'),pct:n('loan_percent_income')}});
+}
+function setData(t,real,name){
+  rows=parse(t);view=rows.slice();page=1;sKey='i';sDir=1;cache={};
+  $('bannerTxt').textContent=real?'Datos cargados: '+name+' ('+rows.length.toLocaleString('en-US')+' registros).':'Mostrando una muestra de '+rows.length+' filas. Coloca credit_risk_dataset.csv junto a index.html en el repositorio, o cárgalo aquí:';
+  $('tinfo').textContent=rows.length.toLocaleString('en-US')+' registros con los campos principales del dataset.';
+  renderAll();
+}
+function cell(r,k){var v=r[k];
+  if(k==='i')return '<td>'+v+'</td>';
+  if(v===null||v===undefined)return '<td>—</td>';
+  if(k==='inc'||k==='amt')return '<td>'+money(v)+'</td>';
+  if(k==='emp')return '<td>'+v+' años</td>';
+  if(k==='rate')return '<td>'+v.toFixed(1)+'%</td>';
+  if(k==='pct')return '<td>'+Math.round(v*100)+'%</td>';
+  if(k==='st')return '<td><span class="b '+(v?'bad':'ok')+'">'+(v?'Default':'Pagado')+'</span></td>';
+  if(k==='home'||k==='intent'||k==='grade')return '<td><span class="chip">'+esc(v)+'</span></td>';
+  return '<td>'+v+'</td>';}
+function renderAll(){
+  var n=rows.length,tot=0,rs=0,rc=0,df=0;
+  rows.forEach(function(r){tot+=r.amt||0;if(r.rate!==null){rs+=r.rate;rc++}if(r.st)df++});
+  $('kpis').innerHTML=[['PRÉSTAMOS',n.toLocaleString('en-US'),'registros en el dataset',''],['MONTO TOTAL','$'+(tot/1e6).toFixed(1)+'M',money(tot),''],['TASA PROMEDIO',(rs/rc).toFixed(1)+'%','interés anual',''],['TASA DE DEFAULT',(df/n*100).toFixed(1)+'%','préstamos incumplidos','r']].map(function(k){return '<div class="kpi '+k[3]+'"><small>'+k[0]+'</small><b>'+k[1]+'</b><span>'+k[2]+'</span></div>'}).join('');
+  renderTable();drawGraph();
+}
+function renderTable(){
+  $('thr').innerHTML=COLS.map(function(c){return '<th>'+c[1]+(c[0]===sKey?(sDir>0?' ↑':' ↓'):'')+'</th>'}).join('');
+  var pages=Math.max(1,Math.ceil(view.length/PS)),a=(page-1)*PS;
+  $('tb').innerHTML=view.slice(a,a+PS).map(function(r){return '<tr>'+COLS.map(function(c){return cell(r,c[0])}).join('')+'</tr>'}).join('');
+  $('pinfo').innerHTML='Página <b>'+page+'</b> de <b>'+pages+'</b> · Mostrando '+(view.length?a+1:0)+'–'+Math.min(a+PS,view.length)+' de '+view.length.toLocaleString('en-US');
+  $('prev').disabled=page<=1;$('next').disabled=page>=pages;
+}
+$('prev').onclick=function(){page--;renderTable()};
+$('next').onclick=function(){page++;renderTable()};
+
+/* Ordenamiento */
+$('ocol').innerHTML=COLS.map(function(c){return '<option value="'+c[0]+'">'+c[1]+'</option>'}).join('');
+function runSort(alg,col,dir){
+  var comps=0,key=function(r){var v=r[col];return v===null?-Infinity:v};
+  var cmp=function(a,b){comps++;var x=key(a),y=key(b);return dir*(x<y?-1:x>y?1:0)};
+  function ms(a){if(a.length<2)return a;var m=a.length>>1,l=ms(a.slice(0,m)),r=ms(a.slice(m)),o=[],i=0,j=0;
+    while(i<l.length&&j<r.length)o.push(cmp(l[i],r[j])<=0?l[i++]:r[j++]);return o.concat(l.slice(i),r.slice(j))}
+  function qs(a){if(a.length<2)return a;var p=a[a.length>>1],lo=[],eq=[],hi=[];
+    for(var i=0;i<a.length;i++){var c=cmp(a[i],p);if(c<0)lo.push(a[i]);else if(c===0)eq.push(a[i]);else hi.push(a[i])}
+    return qs(lo).concat(eq,qs(hi))}
+  var t=performance.now(),res=alg==='merge'?ms(view):alg==='quick'?qs(view):view.slice().sort(cmp);
+  return {a:res,c:comps,t:performance.now()-t};
+}
+$('oapply').onclick=function(){
+  var alg=$('oalg').value,col=$('ocol').value,dir=+$('odir').value,r=runSort(alg,col,dir);
+  view=r.a;sKey=col;sDir=dir;page=1;renderTable();
+  $('ores').innerHTML='<b>'+$('oalg').selectedOptions[0].text+'</b>: '+view.length.toLocaleString('en-US')+' registros, '+r.c.toLocaleString('en-US')+' comparaciones en '+r.t.toFixed(1)+' ms. Revisa el resultado en Inicio.';
+};
+$('oreset').onclick=function(){view=rows.slice();sKey='i';sDir=1;page=1;renderTable();$('ores').textContent='Orden original restaurado.'};
+
+/* Búsqueda */
+function sortedVals(f){if(!cache[f])cache[f]=rows.filter(function(r){return r[f]!==null}).sort(function(a,b){return a[f]-b[f]});return cache[f]}
+function find(kind,f,v){
+  var c=0,i;
+  if(kind==='sec'){for(i=0;i<rows.length;i++){c++;if(rows[i][f]===v)return {r:rows[i],c:c}}return {r:null,c:c}}
+  var a=sortedVals(f),lo=0,hi=a.length-1,m,x;
+  if(kind==='bin'){while(lo<=hi){m=(lo+hi)>>1;c++;x=a[m][f];if(x===v)return {r:a[m],c:c};if(x<v)lo=m+1;else hi=m-1}return {r:null,c:c}}
+  while(lo<=hi&&v>=a[lo][f]&&v<=a[hi][f]){c++;
+    if(a[hi][f]===a[lo][f])return {r:a[lo][f]===v?a[lo]:null,c:c};
+    m=lo+Math.floor((v-a[lo][f])*(hi-lo)/(a[hi][f]-a[lo][f]));x=a[m][f];
+    if(x===v)return {r:a[m],c:c};if(x<v)lo=m+1;else hi=m-1}
+  return {r:null,c:c};
+}
+document.querySelectorAll('#stabs button').forEach(function(b){b.onclick=function(){document.querySelectorAll('#stabs button').forEach(function(x){x.classList.remove('on')});b.classList.add('on');bus=b.dataset.b}});
+$('sgo').onclick=function(){
+  var raw=$('sq').value;if(raw===''){$('sres').textContent='Escribe un valor para buscar.';return}
+  var v=+raw,f=$('sf').value,t=performance.now(),s=find(bus,f,v),ms=(performance.now()-t).toFixed(3),nm={sec:'Secuencial',bin:'Binaria',int:'Interpolación'}[bus];
+  $('sres').innerHTML=s.r?'<b>'+nm+':</b> encontrado el registro #'+s.r.i+' (edad '+s.r.age+', ingreso '+money(s.r.inc)+', monto '+money(s.r.amt)+', grado '+s.r.grade+') con '+s.c.toLocaleString('en-US')+' comparaciones en '+ms+' ms.':'<b>'+nm+':</b> no existe ese valor ('+s.c.toLocaleString('en-US')+' comparaciones, '+ms+' ms).';
+};
+
+/* Grafo */
+function buildGraph(){
+  var all=0,ac=0;rows.forEach(function(r){if(r.rate!==null){all+=r.rate;ac++}});
+  gstat=G.map(function(g){var n=0,s=0,c=0;rows.forEach(function(r){if(r.grade===g){n++;if(r.rate!==null){s+=r.rate;c++}}});return {g:g,n:n,rate:c?s/c:all/ac,real:c>0}});
+}
+function weights(){return G.map(function(_,i){return G.map(function(_,j){return i!==j&&Math.abs(i-j)<=2?(gstat[i].rate+gstat[j].rate)/2:null})})}
+function dijk(w){var d=G.map(function(){return Infinity}),p=G.map(function(){return -1}),u=G.map(function(){return false});d[0]=0;
+  for(var k=0;k<G.length;k++){var a=-1;for(var i=0;i<G.length;i++)if(!u[i]&&(a<0||d[i]<d[a]))a=i;u[a]=true;
+    for(var b=0;b<G.length;b++){var e=w[a][b];if(e!==null&&d[a]+e<d[b]){d[b]=d[a]+e;p[b]=a}}}
+  return {d:d,p:p}}
+function drawGraph(){
+  buildGraph();
+  var cur=$('gd').value||'G';
+  $('gd').innerHTML=G.map(function(g,i){return '<option value="'+g+'"'+(g===cur?' selected':'')+'>Grado '+g+' · tasa media '+gstat[i].rate.toFixed(1)+'%</option>'}).join('');
+  var t=G.indexOf($('gd').value),r=dijk(weights()),path=[],x=t;
+  while(x>=0){path.unshift(x);x=r.p[x]}
+  var on={};for(var i=0;i<path.length-1;i++)on[path[i]+'-'+path[i+1]]=1;
+  var X=function(i){return 55+i*96},s='';
+  for(i=0;i<7;i++)for(var j=i+1;j<=i+2&&j<7;j++){var o=on[i+'-'+j]?' on':'';
+    s+=j-i===1?'<line class="ge'+o+'" x1="'+X(i)+'" y1="120" x2="'+X(j)+'" y2="120"/>':'<path class="ge'+o+'" d="M'+X(i)+' 120Q'+(X(i)+X(j))/2+' 40 '+X(j)+' 120"/>'}
+  gstat.forEach(function(g,i){var o=path.indexOf(i)>=0?' on':'';
+    s+='<circle class="gn'+o+'" cx="'+X(i)+'" cy="120" r="26"/><text x="'+X(i)+'" y="126" style="font-size:18px;font-weight:800">'+g.g+'</text><text x="'+X(i)+'" y="170">'+g.rate.toFixed(1)+'%</text><text class="m" x="'+X(i)+'" y="186">'+g.n.toLocaleString('en-US')+' prést.</text>'});
+  $('gsvg').innerHTML=s;
+  $('gres').innerHTML='Ruta de menor riesgo hasta <b>'+G[t]+'</b>: <b>'+path.map(function(i){return G[i]}).join(' → ')+'</b> con un costo total de <b>'+r.d[t].toFixed(2)+'</b>.'+(gstat.some(function(g){return !g.real})?' Los grados sin datos usan la tasa media global.':'');
+}
+$('gg').onclick=drawGraph;
+
+/* Analizador */
+var EX={
+'Ordenamiento · Bubble sort':'def bubble_sort(arr):\n    n = len(arr)\n    for i in range(n):\n        swapped = False\n        for j in range(0, n - i - 1):\n            if arr[j] > arr[j + 1]:\n                arr[j], arr[j + 1] = arr[j + 1], arr[j]\n                swapped = True\n        if not swapped:\n            break\n    return arr\n',
+'Búsqueda · Binaria':'def busqueda_binaria(lista, valor):\n    low = 0\n    high = len(lista) - 1\n    while low <= high:\n        mid = (low + high) // 2\n        if lista[mid] == valor:\n            return mid\n        elif lista[mid] < valor:\n            low = mid + 1\n        else:\n            high = mid - 1\n    return -1\n',
+'Ordenamiento · Merge sort':'def merge_sort(lista):\n    if len(lista) <= 1:\n        return lista\n    medio = len(lista) // 2\n    izq = merge_sort(lista[:medio])\n    der = merge_sort(lista[medio:])\n    resultado = []\n    i = j = 0\n    while i < len(izq) and j < len(der):\n        if izq[i] <= der[j]:\n            resultado.append(izq[i])\n            i += 1\n        else:\n            resultado.append(der[j])\n            j += 1\n    return resultado + izq[i:] + der[j:]\n',
+'Recursión · Fibonacci':'def fib(n):\n    if n <= 1:\n        return n\n    return fib(n - 1) + fib(n - 2)\n'};
+$('ex').innerHTML=Object.keys(EX).map(function(k){return '<option>'+k+'</option>'}).join('');
+$('ex').onchange=function(){$('code').value=EX[$('ex').value];$('ares').hidden=true;$('add').disabled=true};
+$('code').value=EX[$('ex').value];
+function cx(e,n,l){return {e:e,n:n,l:l}}
+function gt(a,b){if(a.e!==b.e)return a.e;if(a.n!==b.n)return a.n>b.n;return a.l>b.l}
+function fmtC(c){if(c.e)return 'O(2ⁿ)';var p=c.n?'n'+(c.n===1?'':(['','','²','³'][c.n]||'^'+c.n)):'',l=c.l?(c.l===1?'log n':'log^'+c.l+' n'):'';return 'O('+([p,l].filter(Boolean).join(' · ')||'1')+')'}
+function analyze(src){
+  var L=src.replace(/\t/g,'    ').split('\n'),why=[],stack=[],best=cx(false,0,0),fm=src.match(/def\s+(\w+)/),fn=fm?fm[1]:'código';
+  L.forEach(function(ln,ix){
+    if(!ln.trim())return;var ind=ln.search(/\S/);
+    while(stack.length&&stack[stack.length-1].i>=ind)stack.pop();
+    var m=ln.match(/^\s*(for|while)\b/);if(!m)return;
+    var body=[],j=ix+1;while(j<L.length&&(!L[j].trim()||L[j].search(/\S/)>ind)){body.push(L[j]);j++}
+    var b=body.join('\n'),lg=m[1]==='while'&&(/(\/\/=|\/=|\*=)\s*2|=\s*\w+\s*(\/\/|\*)\s*2/.test(b)||(/mid|medio/.test(b)&&/=\s*\w*\s*\+\s*1/.test(b)&&/=\s*\w*\s*-\s*1/.test(b)));
+    stack.push({i:ind,lg:lg});
+    var c=cx(false,stack.filter(function(s){return !s.lg}).length,stack.filter(function(s){return s.lg}).length);
+    if(gt(c,best))best=c;
+  });
+  var time=best,space='O(1)',calls=fm?(src.match(new RegExp('\\b'+fn+'\\s*\\(','g'))||[]).length-1:0;
+  var dec=fm&&new RegExp(fn+'\\([^)]*-\\s*[12]').test(src),half=/\/\/\s*2|\[:\s*\w+\]|\[\w+:\]|\bmedio\b|\bmid\b/.test(src);
+  var alloc=/\.append\(|\[\]|\blist\(|\bdict\(|\bset\(|\{\}|\]\s*\*\s*\w+|\.copy\(/.test(src);
+  if(best.n||best.l)why.push('Mayor anidamiento de bucles: '+best.n+' lineal(es) y '+best.l+' logarítmico(s) → '+fmtC(best)+'.');
+  if(calls>0){
+    if(calls>=2&&dec){time=cx(true,0,0);why.push(calls+' llamadas recursivas que reducen n en 1 o 2 → crecimiento exponencial.')}
+    else if(calls>=2){time=best.n?cx(false,1,1):cx(false,1,0);why.push(calls+' llamadas recursivas sobre subproblemas más pequeños (divide y vencerás)'+(best.n?' con trabajo lineal por nivel → n log n.':' → O(n).'))}
+    else if(dec){time=cx(false,best.n+1,best.l);why.push('Una llamada recursiva con n−1 → n niveles de recursión.')}
+    else{time=cx(false,best.n,best.l+1);why.push('Una llamada recursiva sobre la mitad → log n niveles.')}
+    space=dec?'O(n)':(half&&!alloc)?'O(log n)':'O(n)';
+    why.push('Espacio: la pila de recursión'+(alloc?' y las listas auxiliares':'')+' definen '+space+'.');
+  }else{space=alloc?'O(n)':'O(1)';why.push(alloc?'Espacio: se crean estructuras auxiliares proporcionales a n.':'Espacio: solo variables escalares, se ordena o busca en el lugar.')}
+  if(/\bsorted\(|\.sort\(/.test(src)&&gt(cx(false,1,1),time)){time=cx(false,1,1);why.push('Uso de sorted() o .sort() → O(n log n).')}
+  why.push('Se asume el peor caso y el análisis es estático.');
+  return {name:fn,time:fmtC(time),space:space,why:why};
+}
+var last=null,cmpRows=[];
+$('an').onclick=function(){
+  last=analyze($('code').value);
+  $('ares').hidden=false;
+  $('ares').innerHTML='<h2>Resultado: '+esc(last.name)+'</h2><div class="big"><div><small>Complejidad temporal</small><b>'+last.time+'</b></div><div><small>Complejidad espacial</small><b>'+last.space+'</b></div></div><ul>'+last.why.map(function(w){return '<li>'+esc(w)+'</li>'}).join('')+'</ul>';
+  $('add').disabled=false;
+};
+$('clr').onclick=function(){$('ares').hidden=true;$('add').disabled=true};
+$('add').onclick=function(){
+  if(!last)return;cmpRows.push(last);$('cmpC').hidden=false;
+  $('cmpT').innerHTML=cmpRows.map(function(r){return '<tr><td>'+esc(r.name)+'</td><td>'+r.time+'</td><td>'+r.space+'</td></tr>'}).join('');
+};
+
+/* Navegación, tema y carga */
+function show(m){
+  document.querySelectorAll('.mod').forEach(function(s){s.classList.toggle('on',s.id==='m-'+m)});
+  document.querySelectorAll('.nv').forEach(function(b){b.classList.toggle('on',b.dataset.go===m)});
+  window.scrollTo(0,0);
+}
+document.querySelectorAll('.nv').forEach(function(b){b.onclick=function(){show(b.dataset.go)}});
+$('theme').onclick=function(){
+  var d=document.documentElement,dark=d.dataset.theme?d.dataset.theme==='dark':matchMedia('(prefers-color-scheme:dark)').matches;
+  d.dataset.theme=dark?'light':'dark';$('theme').textContent=dark?'☾':'☀';
+};
+$('csvIn').onchange=function(e){var f=e.target.files[0];if(!f)return;var r=new FileReader();r.onload=function(){setData(r.result,true,f.name)};r.readAsText(f)};
+fetch('credit_risk_dataset.csv').then(function(r){if(!r.ok)throw 0;return r.text()}).then(function(t){setData(t,true,'credit_risk_dataset.csv')},function(){setData(SAMPLE,false)});
+</script>
+</body>
+</html>
